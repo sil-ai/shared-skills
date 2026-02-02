@@ -1,6 +1,6 @@
 # SIL Shared Skills
 
-AI coding skills developed by and for [Claude Code](https://claude.ai/claude-code), but should be compatible with other AI coding agents. These skills cover common Bible NLP tasks used by the SIL AI Capability Team and others.
+AI coding skills developed by and for [Claude Code](https://claude.ai/code), but should be compatible with other AI coding agents. These skills cover common Bible NLP tasks used by the SIL AI Capability Team and others.
 
 ## Available Skills
 
