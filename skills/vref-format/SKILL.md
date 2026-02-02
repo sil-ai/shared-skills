@@ -1,3 +1,8 @@
+---
+name: vref-format
+description: Understand and work with the VREF (Verse Reference) format, a line-based system for aligning Bible text with 41,899 canonical verse references. Use when creating, reading, or processing vref-aligned files, understanding the vref.txt structure, or handling `<range>` markers for combined verses.
+---
+
 # VREF Format Documentation
 
 The VREF (Verse Reference) format is a simple line-based system for aligning Bible text with a standardized verse reference list. It enables consistent alignment of Scripture text across different translations and makes it easy to work with verse-level or passage-level data.

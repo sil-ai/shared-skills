@@ -1,3 +1,8 @@
+---
+name: modal-dev
+description: Guidelines for developing Modal serverless cloud applications. Use when writing Modal apps, configuring GPUs and resources, creating web endpoints, or running Modal CLI commands. Covers Functions, Classes, Images, Volumes, and best practices.
+---
+
 # Modal Rules and Guidelines for LLMs
 
 This file provides rules and guidelines for LLMs when implementing Modal code.

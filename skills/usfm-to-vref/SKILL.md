@@ -1,8 +1,13 @@
+---
+name: usfm-to-vref
+description: Convert USFM/Paratext Bible projects into vref-aligned text files using the sil-machine Python library. Use when extracting Scripture from USFM/USX files, creating Settings.xml for non-Paratext projects, or choosing the correct versification scheme.
+---
+
 # Converting USFM/Paratext Projects to VREF Format
 
 This document describes how to convert Bible text from USFM/Paratext formats into the line-based VREF format using the SIL `machine` library.
 
-For details on the VREF output format, see [vref.md](vref.md).
+For details on the VREF output format, see the vref-format skill (`/vref-format`).
 
 ## Format Overview
 
@@ -261,7 +266,7 @@ The output is already aligned to VREF line numbers (which use ORIGINAL versifica
 
 Empty strings indicate missing verses. The `<range>` marker indicates a verse combined with the previous verse.
 
-See [vref.md](vref.md) for complete VREF format documentation.
+See the vref-format skill (`/vref-format`) for complete VREF format documentation.
 
 ## Summary
 
