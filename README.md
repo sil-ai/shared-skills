@@ -8,6 +8,7 @@ AI coding skills developed by and for [Claude Code](https://claude.ai/code), but
 |-------|------------|-------------|
 | vref-format | `/vref-format` | VREF format documentation and usage |
 | usfm-to-vref | `/usfm-to-vref` | Convert USFM/Paratext to vref-aligned text |
+| vref-to-usfm | `/vref-to-usfm` | Convert vref-aligned text to USFM/SFM files |
 | modal-dev | `/modal-dev` | Modal serverless development guidelines |
 
 ## Installation
@@ -24,6 +25,7 @@ mkdir -p ~/.claude/skills
 # Symlink the skills you want
 ln -s ~/sil-shared-skills/skills/vref-format ~/.claude/skills/
 ln -s ~/sil-shared-skills/skills/usfm-to-vref ~/.claude/skills/
+ln -s ~/sil-shared-skills/skills/vref-to-usfm ~/.claude/skills/
 ln -s ~/sil-shared-skills/skills/modal-dev ~/.claude/skills/
 ```
 
@@ -46,6 +48,7 @@ git -C ~/sil-shared-skills pull
 Invoke skills by typing `/skillname` in Claude Code:
 - `/vref-format` - Get VREF format documentation
 - `/usfm-to-vref` - Get USFM conversion guidance
+- `/vref-to-usfm` - Convert vref text back to USFM
 - `/modal-dev` - Get Modal development guidelines
 
 ## Contributing
