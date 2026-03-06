@@ -144,28 +144,7 @@ Descriptors (e.g., "SIL Language Technology") use **Source Sans Pro Semibold**, 
 
 ---
 
-## Design Principles
-
-### Voice
-SIL's brand voice is **Competent, Caring, and Engaging**:
-- Competent: credible, professional, experienced, approachable — never boastful, pedantic, or aloof
-- Caring: empathetic, genuine, responsive — never sentimental, forced, or disingenuous
-- Engaging: inviting, winsome, believable — never exaggerated, trite, or manipulative
-
-### Brand Expressions (approved taglines)
-- "Language for a Better Life" *(brand promise)*
-- "Languages matter because people matter."
-- "Behind every language, we see people."
-- "Language for Good"
-- "People. Languages. Life."
-
-### Photography in UI
-- Use photos of hopeful, empowered people using language
-- Favor bright colors, strong light, contrast, and dynamic composition
-- Minimum resolution: 1000px wide
-- Never use photos that portray people as helpless, suffering, or undignified
-
-### Design Elements
+## Design Elements
 Three brand-approved decorative elements for backgrounds and graphics:
 - **Glyph bars** — horizontal strips containing SIL glyphs
 - **Topographical backgrounds** — layered line patterns
