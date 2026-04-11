@@ -10,6 +10,7 @@ AI coding skills and agents developed by and for [Claude Code](https://claude.ai
 | usfm-to-vref | `/usfm-to-vref` | Convert USFM/Paratext to vref-aligned text |
 | vref-to-usfm | `/vref-to-usfm` | Convert vref-aligned text to USFM/SFM files |
 | modal-dev | `/modal-dev` | Modal serverless development guidelines |
+| aqua-api | `/aqua-api` | Access Bible text/revisions via the SIL Aqua API |
 
 ## Available Agents
 
@@ -42,6 +43,7 @@ ln -s ~/sil-shared-skills/skills/vref-format ~/.claude/skills/
 ln -s ~/sil-shared-skills/skills/usfm-to-vref ~/.claude/skills/
 ln -s ~/sil-shared-skills/skills/vref-to-usfm ~/.claude/skills/
 ln -s ~/sil-shared-skills/skills/modal-dev ~/.claude/skills/
+ln -s ~/sil-shared-skills/skills/aqua-api ~/.claude/skills/
 
 # Symlink agents
 for agent in ~/sil-shared-skills/agents/*.md; do
@@ -73,6 +75,7 @@ Invoke skills by typing `/skillname` in Claude Code:
 - `/usfm-to-vref` - Get USFM conversion guidance
 - `/vref-to-usfm` - Convert vref text back to USFM
 - `/modal-dev` - Get Modal development guidelines
+- `/aqua-api` - Access Bible text/revisions via the SIL Aqua API
 
 ### Agents
 
