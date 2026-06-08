@@ -53,9 +53,20 @@ Launch review agents in parallel using the Agent tool. Decide which review conce
 
 For small PRs, a single comprehensive agent may be enough. For large PRs touching multiple concerns, split into parallel agents for speed.
 
-**Specialist agents** — prefer these over a generic reviewer when the PR touches their domain, and run them in parallel with the general angles above:
-- **`fastapi-expert`** — any PR touching FastAPI routers, path operations, dependencies, Pydantic request/response models, async DB sessions, background tasks, middleware/lifespan, or the uvicorn/gunicorn server config. Catches event-loop blocking, dependency-lifecycle bugs, and API-contract regressions.
-- **`django-expert`** — any PR touching Django models, migrations, querysets, or DRF serializers/viewsets (see also the migration note below).
+**Available agents** — these are the shared agents the Agent tool can launch. Pick the ones whose domain the PR actually touches and run them in parallel; prefer a domain specialist over the generic `code-reviewer` when one applies. Not every agent is relevant to every PR.
+
+| Agent | Launch when the PR touches |
+|-------|----------------------------|
+| `code-reviewer` | Almost any PR — general correctness, readability, maintainability, and adherence to codebase patterns. The sensible default. |
+| `security-auditor` | Auth/authz, user input handling, new endpoints, secrets/config, file uploads, or new dependencies. |
+| `qa-strategist` | New or changed behavior where test coverage, edge cases, and regression risk matter. |
+| `devops-engineer` | Dockerfiles, CI/CD pipelines, deployment config, infrastructure, or Modal app/deploy setup. |
+| `ml-engineer` | ML pipelines, model/training/eval changes, data handling (ASR/TTS/translation, embeddings, fine-tuning). |
+| `django-expert` | Django models, migrations, querysets, or DRF serializers/viewsets (see also the migration note below). |
+| `fastapi-expert` | FastAPI routers, path operations, dependencies, Pydantic models, async DB sessions, background tasks, middleware/lifespan, or uvicorn/gunicorn config. |
+| `ux-reviewer` | UI/UX code — component layout, styling, interaction patterns, accessibility, responsive behavior. |
+| `architect` | A significant structural decision — new API boundaries, data models, cross-system integration, or scalability tradeoffs worth a design-level check beyond line review. |
+| `devils-advocate` | A consequential or hard-to-reverse change where it's worth stress-testing the approach and surfacing hidden risks, not just reviewing the lines. |
 
 Each agent should output a numbered list of findings with severity (critical / warning / nit).
 
