@@ -11,6 +11,8 @@ AI coding skills and agents developed by and for [Claude Code](https://claude.ai
 | vref-to-usfm | `/vref-to-usfm` | Convert vref-aligned text to USFM/SFM files |
 | modal-dev | `/modal-dev` | Modal serverless development guidelines |
 | aqua-api | `/aqua-api` | Access Bible text/revisions via the SIL Aqua API |
+| pr-review | `/pr-review` | Agent-based PR review cycle: create PR, review, fix, re-review, drive CI to green |
+| md-to-sil-docx | `/md-to-sil-docx` | Convert Markdown into a SIL-branded .docx (title block, headings, lists, tables) |
 
 ## Available Agents
 
@@ -20,6 +22,8 @@ Agents are specialized reviewers that Claude Code can launch as subagents via th
 |-------|-------------|
 | architect | System design decisions, API boundaries, data models, scalability tradeoffs |
 | code-reviewer | Code quality, readability, maintainability, correctness, best practices |
+| django-expert | Django review: migration safety, ORM correctness, DRF, DB/deployment interactions |
+| fastapi-expert | FastAPI review: async/event-loop correctness, dependency injection, Pydantic, async DB sessions |
 | security-auditor | Security vulnerabilities, auth flows, dependency risks, threat modeling |
 | qa-strategist | Test strategies, edge cases, coverage, regression risks |
 | devops-engineer | Docker, CI/CD, deployment, infrastructure, Modal configs |
@@ -44,6 +48,8 @@ ln -s ~/sil-shared-skills/skills/usfm-to-vref ~/.claude/skills/
 ln -s ~/sil-shared-skills/skills/vref-to-usfm ~/.claude/skills/
 ln -s ~/sil-shared-skills/skills/modal-dev ~/.claude/skills/
 ln -s ~/sil-shared-skills/skills/aqua-api ~/.claude/skills/
+ln -s ~/sil-shared-skills/skills/pr-review ~/.claude/skills/
+ln -s ~/sil-shared-skills/skills/md-to-sil-docx ~/.claude/skills/
 
 # Symlink agents
 for agent in ~/sil-shared-skills/agents/*.md; do
@@ -76,6 +82,8 @@ Invoke skills by typing `/skillname` in Claude Code:
 - `/vref-to-usfm` - Convert vref text back to USFM
 - `/modal-dev` - Get Modal development guidelines
 - `/aqua-api` - Access Bible text/revisions via the SIL Aqua API
+- `/pr-review` - Run the agent-based PR review cycle
+- `/md-to-sil-docx` - Convert a Markdown file into a SIL-branded .docx
 
 ### Agents
 
