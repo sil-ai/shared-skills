@@ -13,6 +13,7 @@ AI coding skills and agents developed by and for [Claude Code](https://claude.ai
 | aqua-api | `/aqua-api` | Access Bible text/revisions via the SIL Aqua API |
 | pr-review | `/pr-review` | Agent-based PR review cycle: create PR, review, fix, re-review, drive CI to green |
 | md-to-sil-docx | `/md-to-sil-docx` | Convert Markdown into a SIL-branded .docx (title block, headings, lists, tables) |
+| loki-logs | `/loki-logs` | Query the multilingualai Grafana Loki logs for any project/environment (errors, traces, recent activity) |
 
 ## Available Agents
 
@@ -50,6 +51,7 @@ ln -s ~/sil-shared-skills/skills/modal-dev ~/.claude/skills/
 ln -s ~/sil-shared-skills/skills/aqua-api ~/.claude/skills/
 ln -s ~/sil-shared-skills/skills/pr-review ~/.claude/skills/
 ln -s ~/sil-shared-skills/skills/md-to-sil-docx ~/.claude/skills/
+ln -s ~/sil-shared-skills/skills/loki-logs ~/.claude/skills/
 
 # Symlink agents
 for agent in ~/sil-shared-skills/agents/*.md; do
@@ -84,6 +86,7 @@ Invoke skills by typing `/skillname` in Claude Code:
 - `/aqua-api` - Access Bible text/revisions via the SIL Aqua API
 - `/pr-review` - Run the agent-based PR review cycle
 - `/md-to-sil-docx` - Convert a Markdown file into a SIL-branded .docx
+- `/loki-logs` - Query the multilingualai Grafana Loki logs for a project/environment
 
 ### Agents
 
