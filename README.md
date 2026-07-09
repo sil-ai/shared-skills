@@ -14,6 +14,8 @@ AI coding skills and agents developed by and for [Claude Code](https://claude.ai
 | pr-review | `/pr-review` | Agent-based PR review cycle: create PR, review, fix, re-review, drive CI to green |
 | md-to-sil-docx | `/md-to-sil-docx` | Convert Markdown into a SIL-branded .docx (title block, headings, lists, tables) |
 | loki-logs | `/loki-logs` | Query the multilingualai Grafana Loki logs for any project/environment (errors, traces, recent activity) |
+| aero-api | `/aero-api` | Call the SIL AERO API for AI audio processing (ASR, forced alignment, voice conversion, noise removal, audio infilling, diarization) |
+| alpha2-api | `/alpha2-api` | Machine-translate text and generate TTS audio via the Alpha2 (multilingualai) Text Collection API |
 
 ## Available Agents
 
@@ -52,6 +54,8 @@ ln -s ~/sil-shared-skills/skills/aqua-api ~/.claude/skills/
 ln -s ~/sil-shared-skills/skills/pr-review ~/.claude/skills/
 ln -s ~/sil-shared-skills/skills/md-to-sil-docx ~/.claude/skills/
 ln -s ~/sil-shared-skills/skills/loki-logs ~/.claude/skills/
+ln -s ~/sil-shared-skills/skills/aero-api ~/.claude/skills/
+ln -s ~/sil-shared-skills/skills/alpha2-api ~/.claude/skills/
 
 # Symlink agents
 for agent in ~/sil-shared-skills/agents/*.md; do
@@ -87,6 +91,8 @@ Invoke skills by typing `/skillname` in Claude Code:
 - `/pr-review` - Run the agent-based PR review cycle
 - `/md-to-sil-docx` - Convert a Markdown file into a SIL-branded .docx
 - `/loki-logs` - Query the multilingualai Grafana Loki logs for a project/environment
+- `/aero-api` - Call the SIL AERO API for AI audio processing (ASR, alignment, voice conversion, noise removal, infilling, diarization)
+- `/alpha2-api` - Machine-translate text and generate TTS audio via the Alpha2 Text Collection API
 
 ### Agents
 
