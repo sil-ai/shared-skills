@@ -16,6 +16,7 @@ AI coding skills and agents developed by and for [Claude Code](https://claude.ai
 | loki-logs | `/loki-logs` | Query the multilingualai Grafana Loki logs for any project/environment (errors, traces, recent activity) |
 | aero-api | `/aero-api` | Call the SIL AERO API for AI audio processing (ASR, forced alignment, voice conversion, noise removal, audio infilling, diarization) |
 | alpha2-api | `/alpha2-api` | Machine-translate text and generate TTS audio via the Alpha2 (multilingualai) Text Collection API |
+| clearml-jobs | `/clearml-jobs` | Submit training jobs to the SIL ClearML server (queues, launcher/worker split, monitoring) |
 
 ## Available Agents
 
@@ -56,6 +57,7 @@ ln -s ~/sil-shared-skills/skills/md-to-sil-docx ~/.claude/skills/
 ln -s ~/sil-shared-skills/skills/loki-logs ~/.claude/skills/
 ln -s ~/sil-shared-skills/skills/aero-api ~/.claude/skills/
 ln -s ~/sil-shared-skills/skills/alpha2-api ~/.claude/skills/
+ln -s ~/sil-shared-skills/skills/clearml-jobs ~/.claude/skills/
 
 # Symlink agents
 for agent in ~/sil-shared-skills/agents/*.md; do
