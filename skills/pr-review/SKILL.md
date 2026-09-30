@@ -1,3 +1,8 @@
+---
+name: pr-review
+description: Create a pull request and drive it through agent-based code review, fixes, re-review, GitHub Copilot review, and CI until green. Use when opening a PR for finished work, reviewing an existing PR on the current branch, or applying review feedback.
+---
+
 # PR Review
 
 Create a PR with agent-based code review, apply fixes, and re-review until clean.

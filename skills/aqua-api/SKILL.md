@@ -1,3 +1,8 @@
+---
+name: aqua-api
+description: Fetch Bible text, revisions, and versions from the SIL Aqua API. Use when a task needs verse data from a specific language or translation — for linguistic experiments, tokenization, translation analysis — or when listing available versions/revisions or fetching a single verse. Covers OAuth2 auth and the revision/version/verse endpoints.
+---
+
 # Aqua API
 
 Access Bible text, revisions, and versions via the SIL Aqua API. Use this to retrieve verse data for linguistic experiments, tokenization work, translation analysis, or any task that needs Scripture text from a specific language/translation.
