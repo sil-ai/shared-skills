@@ -6,6 +6,7 @@
 
 Reads OPENROUTER_API_KEY from the environment, falling back to ./.env.
 """
+import functools
 import json
 import os
 import time
@@ -21,13 +22,25 @@ class StateTooLong(Exception):
     """State + questions exceeded the model's context: trim and retry."""
 
 
+@functools.cache
 def _key():
     if os.environ.get("OPENROUTER_API_KEY"):
         return os.environ["OPENROUTER_API_KEY"]
-    for line in open(".env", encoding="utf-8"):
-        if line.startswith("OPENROUTER_API_KEY="):
-            return line.split("=", 1)[1].strip().strip("\"'")
-    raise SystemExit("OPENROUTER_API_KEY not set")
+    try:
+        with open(".env", encoding="utf-8") as f:
+            for line in f:
+                if line.startswith("OPENROUTER_API_KEY="):
+                    return line.split("=", 1)[1].strip().strip("\"'")
+    except FileNotFoundError:
+        pass
+    raise SystemExit("OPENROUTER_API_KEY not set (env or ./.env)")
+
+
+def _backoff(e, attempt):
+    try:
+        return float(e.headers.get("Retry-After"))
+    except (TypeError, ValueError):
+        return 2 ** attempt
 
 
 def ask(state, questions, model=MODEL, retries=6):
@@ -44,7 +57,7 @@ def ask(state, questions, model=MODEL, retries=6):
             if e.code == 422 or (e.code == 400 and "max_tokens_exceeded" in detail):
                 raise StateTooLong(detail)
             if e.code in RETRY and attempt < retries - 1:
-                time.sleep(float(e.headers.get("Retry-After") or 2 ** attempt))
+                time.sleep(_backoff(e, attempt))
                 continue
             raise RuntimeError(f"HTTP {e.code}: {detail}")
         except (urllib.error.URLError, TimeoutError):
@@ -59,6 +72,8 @@ def ask_pair(state, a, b, question, model=MODEL):
     `question` is a choice question whose criteria keys are "a", "b" (and optionally "tie"),
     referring to state fields `candidate_a` / `candidate_b`. Returns {"a": p, "b": p, ...}.
     """
+    if not {"a", "b"} <= set(question["criteria"]) <= {"a", "b", "tie"}:
+        raise ValueError(f"ask_pair needs criteria keys a/b(/tie), got {sorted(question['criteria'])}")
     fwd = ask({**state, "candidate_a": a, "candidate_b": b}, {"q": question}, model)
     rev = ask({**state, "candidate_a": b, "candidate_b": a}, {"q": question}, model)
     p1, p2 = fwd["answers"]["q"]["probabilities"], rev["answers"]["q"]["probabilities"]

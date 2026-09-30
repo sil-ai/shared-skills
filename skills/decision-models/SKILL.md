@@ -1,6 +1,6 @@
 ---
 name: decision-models
-description: Use System One / decision models (TypeSafe Jev, Upstage Solar Decide, Respan Span-01, Kev) — fast, cheap models that return calibrated probabilities instead of text, called via OpenRouter's Decisions endpoint. Use when a step needs a yes/no, pick-one-of-N, or rubric-score judgment at scale (classify, route, triage, gate an agent or tool call, detect defects in LLM/MT output, pick the better of two candidates, rerank), or when an LLM prompt-and-parse step could become a typed decision. Covers the endpoint, request/response shapes, question design, model choice, and lessons learned on SIL data.
+description: Use System One / decision models (TypeSafe Jev, Upstage Solar Decide, Respan Span-01, Kev) — fast, cheap models that return calibrated probabilities instead of text, called via OpenRouter's Decisions endpoint. Use when a step needs a yes/no, pick-one-of-N, or rubric-score judgment at scale (classify, route, triage, gate an agent or tool call, detect defects in LLM/MT output, pick the better of two candidates, rerank), or when an LLM prompt-and-parse step could become a typed decision. Covers the endpoint, request/response shapes, question design, usage patterns, and model choice.
 ---
 
 # Decision models (System One)
@@ -14,7 +14,7 @@ Reach for one when the answer is a **closed set**: yes/no, one-of-N, or a level 
 Decision models are **not** on `/chat/completions` (Jev returns 400 "is a decisions model") and are **hidden from `/api/v1/models`**. List them with `GET https://openrouter.ai/api/v1/models?output_modalities=decisions`.
 
 - `POST https://openrouter.ai/api/alpha/decisions`
-- `Authorization: Bearer $OPENROUTER_API_KEY` (SIL projects keep it in the repo's `.env`)
+- `Authorization: Bearer $OPENROUTER_API_KEY` (or in the project's `.env`, which `decide.py` reads)
 - Body: `{model, state, questions}`, plus optional `session_id`, `user`, `trace`, `provider`. There are **no** sampling params: no temperature, logprobs, tools or response_format.
 - Default model: `typesafe/jev-1.13` (pin it). `~typesafe/jev-latest` floats, and the tilde is required.
 
@@ -68,19 +68,15 @@ Decision models are **not** on `/chat/completions` (Jev returns 400 "is a decisi
 - **Keep policy in code.** Store the raw probabilities, then apply thresholds, weights and "any serious defect" rules in code, where changing them needs no re-run. Tune thresholds on your own labelled data; a noul threshold does not transfer to a choice question.
 - **Literal reader.** It handles double negatives, multi-hop indirection and contradictory criteria poorly. It is best in English and weaker in other languages. It can be prompt-injected through the state, so treat state from untrusted users as hostile.
 
-## Lessons from SIL use
+## Patterns that work
 
-From `icl-bible-translation` (Sept 2026, 17 low-resource language pairs, ~33k calls; full write-up in that repo's `RESULTS.md`, "Jev" sections):
-
-- **Examples in the state are what make it work.** Put ~20 retrieved verified example pairs in the state (`verified_example_translations: [{source, translation}]`). With k=0 the model was near chance on discrimination tasks. k=20 turned it into a working tool, even on languages it has never seen. k=100 bought only +0.07 chrF3 for 3.8× the cost.
-- **Defect gate: yes. Quality metric: no.**
-  - Nouls for untranslated / wrong-verse / truncated / word-salad caught ≥0.91 of defects at a 5% false-alarm rate. That costs about $0.0002 per verse, or ~$9 for a whole Bible.
-  - Absolute `score` values barely tracked chrF3 (ρ≈0.25), gave no triage value, and could not rank systems.
-  - The model also rated MT output *above* the published human translation in 17/17 languages. Never use the raw score as a quality gauge.
-- **A score can reward the wrong thing.** The `adequacy` score rated an untranslated source copy *higher* than the real translation (AUC 0.04). The dedicated `untranslated` noul was perfect (AUC 1.0). Gate the score with the noul in code; never fold the two into one question.
-- **Pairwise choice works where absolute scoring does not.** Asking "which of `translation_a` / `translation_b` is better" per verse built a hybrid that beat the better system by +0.39 chrF3 (11/12 languages). Random picking *lost* 0.33.
-- **Position bias is large.** The model gives the second slot a standing ~11-point preference. **Always ask both orders and average the distributions.**
-- **Follow the selector ungated.** Switching only above a confidence threshold did worse at every threshold we tried.
+- **Gate and select, don't measure.** Decision models are strongest at spotting clear defects (wrong language, wrong item, truncated, incoherent) and at choosing between candidates. They are weakest as an absolute quality score: a rubric `score` is fine for sorting or flagging, but not as a calibrated gauge across different sources or styles.
+- **Compare instead of rating.** "Which of `candidate_a` / `candidate_b` is better?" is usually far more reliable than scoring each candidate separately and comparing the scores. Use it for best-of-N selection, reranking and choosing between system outputs.
+- **Cancel position bias.** Pairwise choices favour one slot regardless of content. Ask both orders and average the distributions. `ask_pair(state, a, b, question)` in `decide.py` does this. It puts the candidates in `candidate_a` / `candidate_b`, and the criteria keys must be `a`, `b` and optionally `tie`.
+- **Ask for the defect directly.** A general quality score can reward the wrong thing; for example, an untranslated copy of the source can look "adequate". Ask a dedicated noul for each failure you care about, and combine the answers in code rather than hoping one question covers everything.
+- **Show examples when the domain is unfamiliar.** For low-resource languages, niche jargon or house style, put a handful of verified examples in the state, e.g. `examples: [{input, good_output}]`. This supplies the prior the model lacks and can turn near-chance judgments into useful ones. More examples cost linearly and quickly stop helping; start around 10–20.
+- **Validate before you trust.** Label a small sample of your real data, measure the model's accuracy, and pick thresholds from that before deploying. Typed output guarantees the format, not the truth.
+- **Escalate the uncertain cases.** Let the model settle the confident cases cheaply, and send low-probability or low-confidence ones to an LLM or a person.
 
 ## Other models
 
@@ -90,4 +86,4 @@ For picking a model other than Jev — Upstage Solar Decide (512k context), Resp
 
 The TypeSafe docs are the source of truth for primitives, cookbooks and limits. Start at the index https://docs.typesafe.ai/llms.txt (any page is available as Markdown by appending `.md`). Before designing a new workflow, check the closest cookbook: rerank, citation check, function calling, hierarchical classification, extraction cascade. OpenRouter's guide is at https://openrouter.ai/docs/guides/community/jev.
 
-When you learn something new on real data (a trap, a threshold, a question design that worked), add it to **Lessons** with the repo and numbers.
+When real use turns up a pattern or pitfall that applies beyond one project, add it to **Patterns that work**.
