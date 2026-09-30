@@ -38,7 +38,26 @@ Agents are specialized reviewers that Claude Code can launch as subagents via th
 
 ## Installation
 
-### Option A: Symlink (Recommended)
+### Option A: `npx skills` (Recommended)
+
+Install with the [Skills CLI](https://skills.sh/). It works for Claude Code, Codex, Cursor and other agents, and needs no clone:
+
+```bash
+# Pick skills interactively
+npx skills add sil-ai/shared-skills
+
+# Or install specific skills at user level
+npx skills add sil-ai/shared-skills -g -s decision-models -s aero-api
+
+# See what's available
+npx skills add sil-ai/shared-skills --list
+```
+
+Update later with `npx skills update`.
+
+The CLI installs skills only. For agents, use Option B.
+
+### Option B: Clone and symlink (contributors, and agents)
 
 ```bash
 # Clone this repo
@@ -47,19 +66,10 @@ git clone https://github.com/sil-ai/shared-skills.git ~/sil-shared-skills
 # Create directories if needed
 mkdir -p ~/.claude/skills ~/.claude/agents
 
-# Symlink skills
-ln -s ~/sil-shared-skills/skills/vref-format ~/.claude/skills/
-ln -s ~/sil-shared-skills/skills/usfm-to-vref ~/.claude/skills/
-ln -s ~/sil-shared-skills/skills/vref-to-usfm ~/.claude/skills/
-ln -s ~/sil-shared-skills/skills/modal-dev ~/.claude/skills/
-ln -s ~/sil-shared-skills/skills/aqua-api ~/.claude/skills/
-ln -s ~/sil-shared-skills/skills/pr-review ~/.claude/skills/
-ln -s ~/sil-shared-skills/skills/md-to-sil-docx ~/.claude/skills/
-ln -s ~/sil-shared-skills/skills/loki-logs ~/.claude/skills/
-ln -s ~/sil-shared-skills/skills/aero-api ~/.claude/skills/
-ln -s ~/sil-shared-skills/skills/alpha2-api ~/.claude/skills/
-ln -s ~/sil-shared-skills/skills/clearml-jobs ~/.claude/skills/
-ln -s ~/sil-shared-skills/skills/decision-models ~/.claude/skills/
+# Symlink all skills
+for skill in ~/sil-shared-skills/skills/*/; do
+  ln -sfn "$skill" ~/.claude/skills/
+done
 
 # Symlink agents
 for agent in ~/sil-shared-skills/agents/*.md; do
@@ -67,20 +77,7 @@ for agent in ~/sil-shared-skills/agents/*.md; do
 done
 ```
 
-### Option B: Copy
-
-```bash
-cp -r ~/sil-shared-skills/skills/* ~/.claude/skills/
-cp ~/sil-shared-skills/agents/*.md ~/.claude/agents/
-```
-
-## Updating
-
-If using symlinks, pull to get updates:
-
-```bash
-git -C ~/sil-shared-skills pull
-```
+To pick up changes, run `git -C ~/sil-shared-skills pull`.
 
 ## Usage
 
@@ -96,6 +93,9 @@ Invoke skills by typing `/skillname` in Claude Code:
 - `/md-to-sil-docx` - Convert a Markdown file into a SIL-branded .docx
 - `/loki-logs` - Query the multilingualai Grafana Loki logs for a project/environment
 - `/aero-api` - Call the SIL AERO API for AI audio processing (ASR, alignment, voice conversion, noise removal, infilling, diarization)
+- `/alpha2-api` - Machine-translate text and generate TTS audio via the Alpha2 Text Collection API
+- `/clearml-jobs` - Submit and monitor training jobs on the SIL ClearML server
+- `/decision-models` - Use fast, cheap decision models (Jev etc.) for yes/no, choice and score judgments
 
 ### Agents
 
@@ -107,7 +107,7 @@ Agents are used automatically by Claude Code when it detects relevant tasks. You
 ## Contributing
 
 To add a new skill:
-1. Create `skills/<skill-name>/SKILL.md` with YAML front matter
+1. Create `skills/<skill-name>/SKILL.md` with YAML front matter (`name` and `description` are required; `npx skills` skips a skill without them)
 2. Add skill to the table in this README
 3. Commit and push
 
