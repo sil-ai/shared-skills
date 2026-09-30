@@ -15,7 +15,7 @@ import urllib.request
 
 URL = "https://openrouter.ai/api/alpha/decisions"
 MODEL = "typesafe/jev-1.13"
-RETRY = (402, 408, 429, 500, 502, 503, 529)
+RETRY = (402, 408, 429)
 
 
 class StateTooLong(Exception):
@@ -56,7 +56,7 @@ def ask(state, questions, model=MODEL, retries=6):
             detail = e.read().decode()[:500]
             if e.code == 422 or (e.code == 400 and "max_tokens_exceeded" in detail):
                 raise StateTooLong(detail)
-            if e.code in RETRY and attempt < retries - 1:
+            if (e.code in RETRY or e.code >= 500) and attempt < retries - 1:
                 time.sleep(_backoff(e, attempt))
                 continue
             raise RuntimeError(f"HTTP {e.code}: {detail}")
