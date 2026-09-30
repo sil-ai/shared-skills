@@ -93,6 +93,9 @@ Invoke skills by typing `/skillname` in Claude Code:
 - `/md-to-sil-docx` - Convert a Markdown file into a SIL-branded .docx
 - `/loki-logs` - Query the multilingualai Grafana Loki logs for a project/environment
 - `/aero-api` - Call the SIL AERO API for AI audio processing (ASR, alignment, voice conversion, noise removal, infilling, diarization)
+- `/alpha2-api` - Machine-translate text and generate TTS audio via the Alpha2 Text Collection API
+- `/clearml-jobs` - Submit and monitor training jobs on the SIL ClearML server
+- `/decision-models` - Use fast, cheap decision models (Jev etc.) for yes/no, choice and score judgments
 
 ### Agents
 
