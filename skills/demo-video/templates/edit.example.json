@@ -1,0 +1,55 @@
+{
+    "title": "Cut v1 (draft voice)",
+    "voice": "af_heart",
+    "voiceSpeed": 1.05,
+    "elevenlabs": { "voice": "XrExE9yKIg1WjnnlVkGX", "model": "eleven_multilingual_v2" },
+    "maxFlex": 12,
+    "clips": {
+        "ph1": "photos/team.png",
+        "ph2": "photos/reviewer.png",
+        "s1": "scene1/video.webm",
+        "desk": "desk-take.mp4",
+        "end": "endcard.html"
+    },
+    "beats": [
+        {
+            "name": "The need",
+            "vo": "Before a Bible translation is published, it is checked verse by verse, often by people who don't speak the language.",
+            "segments": [
+                { "clip": "ph1", "from": 0, "to": 5, "zoom": { "z": 1.08, "cx": 0.5, "cy": 0.5, "ease": 5, "out": false } },
+                { "clip": "ph2", "from": 0, "to": 5, "zoom": { "z": 1.1, "cx": 0.55, "cy": 0.4, "ease": 5, "out": false } }
+            ]
+        },
+        {
+            "name": "Asking a question",
+            "vo": "A translator can ask about a verse, and the answer cites the resources it came from.",
+            "say": "A translator can ask about a verse, <break time=\"0.3s\" /> and the answer cites the resources it came from.",
+            "leadIn": 0.6,
+            "segments": [
+                { "clip": "s1", "from": 1.2, "to": 9.5 },
+                { "clip": "s1", "from": 9.5, "to": 24.5, "flex": true },
+                { "clip": "s1", "from": 24.5, "to": 31.0, "zoom": { "z": 1.5, "cx": 0.7, "cy": 0.45, "ease": 0.8 } }
+            ],
+            "overlay": {
+                "html": "cards.html",
+                "layers": { "scrim": "the resources", "title": "the resources", "card1": "resources it came from" },
+                "to": 6.5
+            }
+        },
+        {
+            "name": "Desktop app",
+            "vo": "The same checks run inside the desktop editor.",
+            "segments": [
+                { "clip": "desk", "from": 0.4, "to": 5.0 },
+                { "clip": "desk", "from": 5.0, "to": 14.0, "speed": 1.4, "zoom": { "z": 1.5, "cx": 0.86, "cy": 0.56, "ease": 1.0, "out": false } },
+                { "clip": "desk", "from": 14.0, "to": 20.0, "zoom": { "z": 1.5, "cx": 0.86, "cy": 0.56, "in": false } }
+            ]
+        },
+        {
+            "name": "Close",
+            "vo": "This tool is built by SIL Global's AI Engineering Team. To request an account, visit the link or scan the code on screen.",
+            "say": "This tool is built by S I L Global's AI Engineering Team. To request an account, visit the link or scan the code on screen.",
+            "segments": [{ "clip": "end", "from": 0, "to": 8 }]
+        }
+    ]
+}
