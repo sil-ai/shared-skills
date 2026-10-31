@@ -10,7 +10,7 @@
 // baseUrl can be overridden with DEMO_URL. "login" is
 //   {"url": "/login/", "fields": {"#username": "$DEMO_USERNAME", "#password": "$DEMO_PASSWORD"},
 //    "submit": "#loginSubmit", "settle": 3000}
-// where "$NAME" values come from the environment or a .env in the current directory.
+// where "$NAME" values come from the environment, or a .env in the current directory or next to the scene file.
 //
 // Steps: {goto}, {hold}, {move: [x, y]}, {click: [x, y]}, {clickText}, {type: [css, text], enter}, {select: [css, value]},
 // {scroll: px, steps}, {scrollTo: text, block}, {scrollTop}, {screenshot: name}, {note}. Any step can add "hold" (ms).
@@ -30,10 +30,13 @@ if (!sceneFile || !outDir) {
 
 function env(name) {
     if (process.env[name]) return process.env[name];
-    const dotenv = path.resolve(".env");
-    if (!fs.existsSync(dotenv)) return undefined;
-    const line = fs.readFileSync(dotenv, "utf8").split("\n").find((l) => l.startsWith(`${name}=`));
-    return line && line.slice(name.length + 1).trim().replace(/^["']|["']$/g, "");
+    for (const dotenv of [path.resolve(".env"), path.join(path.dirname(path.resolve(sceneFile)), ".env")]) {
+        if (!fs.existsSync(dotenv)) continue;
+        const line = fs.readFileSync(dotenv, "utf8").split("\n").map((l) => l.replace(/^export /, ""))
+            .find((l) => l.startsWith(`${name}=`));
+        if (line) return line.slice(name.length + 1).trim().replace(/^["']|["']$/g, "");
+    }
+    return undefined;
 }
 
 const scene = JSON.parse(fs.readFileSync(sceneFile, "utf8"));
@@ -82,8 +85,8 @@ async function smoothScroll(page, px, steps = 40) {
         storageState,
         ...(recordVideo ? { recordVideo: { dir: outDir, size: VIEWPORT } } : {}),
     });
+    const t0 = Date.now(); // the video starts with the page, so time from just before it
     const page = await context.newPage();
-    const t0 = Date.now();
     const timeline = [];
     let shot = 0;
 

@@ -8,14 +8,14 @@ description: Make a 2–3 minute narrated product demo video from the real produ
 A narrated 2–3 minute demo built from the real product: screen recordings driven by script, a
 few photos to open, a voiceover, and an end card. You do the recording, cutting and voicing; the
 user reviews each version in FrameJam with comments pinned to moments in the video, and you apply
-them and re-render. Faithbridge's and AQuA's videos (SIL, Oct 2026) took 12–14 rounds each, most
-of them small.
+them and re-render. The first two videos made this way (SIL's Faithbridge and AQuA demos, October
+2026) took 12–14 rounds each, most of them small.
 
 The pipeline:
 
 ```
 PLAN.md ──► scenes/*.json ──record.js──────► rec/sceneN/video.webm ─┐
-            take.js ─────cdp-record.js─────► rec/take.mp4 ──────────┤
+            take.js ─────cdp-record.js─────► rec/desk-take.mp4 ─────┤
             photos.json ──OpenAI images────► rec/photos/*.png ──────┼─► edit.json ──assemble.py──► rec/rough-cut.mp4
             endcard.html, cards.html ───────────────────────────────┘         (Kokoro draft / ElevenLabs final)
                                                                                          │
@@ -29,16 +29,27 @@ scripts and templates from this skill's folder:
 
 ```bash
 SKILL=<this skill's folder>   # e.g. ~/.claude/skills/demo-video or ~/.agents/skills/demo-video
-cp $SKILL/scripts/* $SKILL/templates/* docs/demo-video/
+mkdir -p docs/demo-video/scenes && cd docs/demo-video
+cp $SKILL/scripts/* $SKILL/templates/endcard.html $SKILL/templates/cards.html .
+cp $SKILL/templates/edit.example.json edit.json
+cp $SKILL/templates/scene.example.json scenes/01-search.json
+cp $SKILL/templates/photos.example.json photos.json
+cp $SKILL/templates/take.example.js take.js        # only for a desktop app (step 3)
+npm i playwright && npx playwright install chromium
 ```
+
+Run every command below from this folder: the scripts find Playwright in its `node_modules`, and
+`.env` next to them.
 
 Keep recordings, renders and voice files out of git: use an output folder outside the repo (or a
 gitignored one), called `rec/` below. Secrets go in a gitignored `.env`.
 
 You need:
 
-- **ffmpeg** and **Node** with Playwright (`npm i playwright && npx playwright install chromium`).
-- **Python** with `soundfile pillow requests kokoro-onnx espeakng-loader` (the repo's venv or a new one).
+- **ffmpeg** and **Node** (Playwright is installed above).
+- **Python** with `soundfile pillow requests kokoro-onnx espeakng-loader openai` (the repo's venv or
+  a new one), and optionally `qrcode` for the end card's QR code.
+- Optionally **zbarimg** (the `zbar` package) to check the QR code decodes from the video.
 - **Kokoro** model files for draft voices, in a folder you point `KOKORO_DIR` at:
   `kokoro-v1.0.onnx` and `voices-v1.0.bin` from
   `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/`.
@@ -69,9 +80,11 @@ Read `lessons.md` in this skill before writing the script: it is what the review
 
 ## 2. Record web scenes (`record.js`)
 
-A scene is one continuous take, written as JSON steps (`scene.example.json`): `goto`, `click`,
-`clickText`, `type` (typed at a natural speed), `scroll`, `scrollTo`, `move`, `hold`,
-`screenshot`. The recorder logs in off camera, glides the mouse like a person, records at
+A scene is one continuous take, written as JSON (`scenes/01-search.json`): a `baseUrl`, an
+optional `login` (form fields filled from `.env`), and `steps`: `goto`, `click: [x, y]`,
+`clickText`, `type: [css, text]` (typed at a natural speed), `select: [css, value]`, `scroll`,
+`scrollTo`, `scrollTop`, `move: [x, y]`, `hold` (ms, also allowed on any step), `screenshot` and
+`note` (does nothing; a comment). The header of `record.js` documents each. The recorder logs in off camera, glides the mouse like a person, records at
 1600×900 and writes `video.webm`, `timeline.json` (when each step started: use these times to cut)
 and the screenshots.
 
@@ -125,6 +138,7 @@ unposed, not stock-photo cheerful".
 import base64, json, pathlib
 from openai import OpenAI
 client = OpenAI()
+pathlib.Path("rec/photos").mkdir(parents=True, exist_ok=True)
 for name, prompt in json.load(open("photos.json")).items():
     r = client.images.generate(model="gpt-image-1.5", prompt=prompt, size="1536x1024")
     pathlib.Path(f"rec/photos/{name}.png").write_bytes(base64.b64decode(r.data[0].b64_json))
@@ -140,7 +154,7 @@ presiding over the others). Show the user the picks before the first cut.
 run). Each beat has:
 
 - `vo`: the narration as written (it becomes the transcript). `say` (optional): what the voice is
-  given instead, to fix pronunciation ("S I L", "Aqua" for "AQuA") or add a pause
+  given instead, to fix pronunciation ("S I L", or a product name spelled as it sounds) or add a pause
   (`<break time="0.3s" />`). Keep both in step.
 - `segments`: `{clip, from, to}` in seconds of the clip, plus optionally
   - `speed`: play faster (1.15–1.6 is invisible for UI; slow down rather than hold a frame).
@@ -148,7 +162,8 @@ run). Each beat has:
     up to `maxFlex`.
   - `zoom: {z, cx, cy, ease, in, out}`: push in to `z` on the point (`cx`, `cy` as fractions of the
     frame) over `ease` seconds, and back out at the end unless `out: false`. `in: false` starts
-    zoomed, to carry a zoom across segments. Photos get a slow push (`z` 1.08, `ease` = length).
+    zoomed, to carry a zoom across segments. Photos get a slow push (`z` 1.08, `ease` = the
+    segment's length, `out: false`).
 - `leadIn`: seconds of picture before the narration starts (default 0.3).
 - `overlay`: `{html, layers: {layer: time or "phrase"}, to}`: each `[data-layer]` element of the
   page (`cards.html`) fades in when its phrase is spoken.

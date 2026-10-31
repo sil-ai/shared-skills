@@ -17,6 +17,8 @@ d, out = sys.argv[1], sys.argv[2]
 crop = sys.argv[3] if len(sys.argv) > 3 else "scale=1600:900:force_original_aspect_ratio=decrease,pad=1600:900:(ow-iw)/2:(oh-ih)/2"
 m = json.load(open(f"{d}/frames.json"))
 fr = m["frames"]
+if not fr:
+    sys.exit(f"No frames were captured in {d}")
 t0 = m["wallStart"]
 lines = []
 for i, f in enumerate(fr):

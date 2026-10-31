@@ -12,7 +12,8 @@ rendered to a 1600x900 still on every run, so edits to it always show. Writes:
   vo/NN.wav       the voiceover for each beat
   rough-cut.mp4   the assembled video with voiceover
   cut.json        each beat's start time, length and the speed used for waits
-  transcript.json the voiceover's timings (per word with ElevenLabs, per beat with Kokoro)
+  transcript.json the voiceover's timings (per word with ElevenLabs, per beat with Kokoro),
+                  in the words of "vo" (with ElevenLabs, of "say" when the two differ in word count)
 
 Each beat plays its segments in order. A segment marked "flex" (usually the
 wait for an answer) is sped up just enough for the beat to fit its voiceover,
@@ -92,7 +93,7 @@ def tts_elevenlabs(beats, config, vo_dir):
         if "settings" in config:
             body["voice_settings"] = config["settings"]
         key = hashlib.sha256(json.dumps([config["voice"], body], sort_keys=True).encode()).hexdigest()[:12]
-        cached = vo_dir / f"{i:02d}-{key}.json"
+        cached = vo_dir / f"{key}.json"  # keyed by text only, so adding or moving a beat doesn't re-voice the others
         if not cached.exists():
             r = requests.post(f"https://api.elevenlabs.io/v1/text-to-speech/{config['voice']}/with-timestamps",
                               params={"output_format": "mp3_44100_128"}, json=body, timeout=300,
@@ -115,6 +116,10 @@ def cue(at, text, vo_len, timings):
     # its place in the text when there are no timings).
     if not isinstance(at, str):
         return at
+    if not timings:
+        text = re.sub(r"<[^>]*>", "", text)  # Kokoro doesn't speak the tags, so don't count them
+    if at not in (timings[0] if timings else text):
+        sys.exit(f"Overlay cue {at!r} is not in the narration: {text!r}")
     if timings:
         return timings[1][timings[0].index(at)]
     return vo_len * text.index(at) / len(text)
@@ -136,7 +141,7 @@ def words(timings, offset):
 
 def zoom_level(zoom, t, length):
     # Eases 1 -> z over "ease" seconds (and back out at the end unless "out" is false).
-    ease = zoom.get("ease", 0.6)
+    ease = max(zoom.get("ease", 0.6), 0.01)
     r = min(1.0, t / ease) if zoom.get("in", True) else 1.0
     if zoom.get("out", True):
         r = min(r, (length - t) / ease)
@@ -184,18 +189,11 @@ def render_segment(src, seg, speed, out):
         # apply to the sped-up timestamps and cut the wrong stretch.
         cmd = ["ffmpeg", "-v", "error", "-i", str(src), "-an",
                "-vf", f"trim=start={seg['from']}:end={seg['to']},setpts=(PTS-STARTPTS)/{speed},scale={SIZE},fps={FPS}"]
-    if "zoom" in seg:
+    if seg.get("zoom", {}).get("z", 1) > 1:
         zoom_frames(cmd, seg["zoom"], length, out)
         return
     cmd[-1] += ",format=yuv420p"
     run(*cmd, "-y", "-c:v", "libx264", "-preset", "veryfast", str(out))
-
-
-def render_card(html, png):
-    run("node", "-e", f"""
-const {{ chromium }} = require("playwright");
-(async () => {{ const b = await chromium.launch(); const p = await b.newPage({{ viewport: {{ width: 1600, height: 900 }} }});
-await p.goto("file://{html}"); await p.waitForTimeout(300); await p.screenshot({{ path: "{png}" }}); await b.close(); }})();""")
 
 
 def add_overlay(beat_file, overlay, layer_dir, out):
@@ -228,7 +226,7 @@ def main(edit_file, out_dir):
     for k, v in edit["clips"].items():
         if v.endswith(".html"):
             clips[k] = work / f"{k}.png"
-            render_card(edit_dir / v, clips[k])
+            run("node", str(HERE / "render-layers.js"), str(edit_dir / v), str(clips[k]), "--card")
         else:
             clips[k] = out / v
 
@@ -236,9 +234,12 @@ def main(edit_file, out_dir):
     for dotenv in (Path.cwd() / ".env", edit_dir / ".env"):
         if not os.environ.get("ELEVENLABS_API_KEY") and dotenv.exists():
             for line in dotenv.read_text().splitlines():
+                line = line.removeprefix("export ")
                 if line.startswith("ELEVENLABS_API_KEY="):
                     os.environ["ELEVENLABS_API_KEY"] = line.split("=", 1)[1].strip().strip("'\"")
-    if "elevenlabs" in edit and os.environ.get("ELEVENLABS_API_KEY") and "--draft" not in sys.argv:
+    if "elevenlabs" in edit and "--draft" not in sys.argv:
+        if not os.environ.get("ELEVENLABS_API_KEY"):
+            sys.exit("edit.json asks for ElevenLabs but ELEVENLABS_API_KEY is not set; pass --draft for the Kokoro voice.")
         vo = tts_elevenlabs(edit["beats"], edit["elevenlabs"], vo_dir)
     else:
         vo = tts(edit["beats"], edit.get("voice", "af_heart"), edit.get("voiceSpeed", 1.0), vo_dir)
@@ -277,7 +278,11 @@ def main(edit_file, out_dir):
                        "voiceover": round(vo_len, 2), "waitSpeed": round(flex_speed, 1), "heldFrame": round(hold, 2),
                        "silence": round(length - vo_len - lead_in, 2), "leadIn": lead_in})
         if timings:
-            transcript += words(timings, t + lead_in)
+            spoken = words(timings, t + lead_in)
+            written = beat["vo"].split()
+            if len(written) == len(spoken):  # show the written words, not "say"'s spellings ("S I L")
+                spoken = [{**w, "text": v} for w, v in zip(spoken, written)]
+            transcript += spoken
         else:
             transcript.append({"text": beat["vo"], "start": round(t + lead_in, 2), "end": round(t + lead_in + vo_len, 2)})
         t += length
@@ -304,4 +309,7 @@ def main(edit_file, out_dir):
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:3])
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    if len(args) != 2:
+        sys.exit("usage: python assemble.py edit.json OUT_DIR [--draft]")
+    main(*args)
