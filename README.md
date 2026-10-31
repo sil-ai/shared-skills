@@ -18,6 +18,7 @@ AI coding skills and agents developed by and for [Claude Code](https://claude.ai
 | alpha2-api | `/alpha2-api` | Machine-translate text and generate TTS audio via the Alpha2 (multilingualai) Text Collection API |
 | clearml-jobs | `/clearml-jobs` | Submit training jobs to the SIL ClearML server (queues, launcher/worker split, monitoring) |
 | decision-models | `/decision-models` | Fast, cheap System One decision models (Jev etc.) via OpenRouter: yes/no, choice and score judgments, question design, usage patterns |
+| demo-video | `/demo-video` | Make a 2–3 minute narrated product demo: Playwright/CDP screen recordings, generated photos, a JSON edit list cut with ffmpeg, Kokoro draft and ElevenLabs final voice, FrameJam review rounds |
 
 ## Available Agents
 

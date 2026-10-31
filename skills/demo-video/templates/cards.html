@@ -1,0 +1,23 @@
+<!doctype html>
+<!-- An overlay: render-layers.js saves each [data-layer] element as its own transparent PNG,
+     and edit.json fades each one in when a phrase of the narration is spoken. -->
+<html>
+<head>
+<meta charset="utf-8">
+<title>Overlay cards</title>
+<style>
+  html, body { margin: 0; width: 1600px; height: 900px; background: transparent; font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .scrim { position: absolute; inset: 0; background: rgba(16, 38, 64, .82); }
+  h1 { position: absolute; top: 80px; width: 100%; text-align: center; margin: 0; color: #fff; font-size: 46px; font-weight: 700; }
+  .card { position: absolute; background: #fff; border-radius: 18px; box-shadow: 0 12px 32px rgba(0, 0, 0, .28); padding: 26px 30px; box-sizing: border-box; }
+  .card .name { font-size: 34px; font-weight: 800; color: #1f4f7a; }
+  .card .what { font-size: 21px; color: #4b5d70; margin-top: 6px; }
+  .card1 { left: 200px; top: 200px; width: 1200px; height: 200px; }
+</style>
+</head>
+<body>
+  <div class="scrim" data-layer="scrim"></div>
+  <h1 data-layer="title">Answers come from trusted resources</h1>
+  <div class="card card1" data-layer="card1"><div class="name">Resource name</div><div class="what">What it is, in a few words</div></div>
+</body>
+</html>

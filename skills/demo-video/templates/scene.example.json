@@ -1,0 +1,24 @@
+{
+    "about": "One scene = one continuous take. Say what it shows and anything done off camera to put the demo account back as it was.",
+    "baseUrl": "https://app.example.org",
+    "login": {
+        "url": "/login/",
+        "fields": { "#username": "$DEMO_USERNAME", "#password": "$DEMO_PASSWORD" },
+        "submit": "button[type=submit]",
+        "settle": 3000
+    },
+    "steps": [
+        { "goto": "/projects", "hold": 2500 },
+        { "screenshot": "projects" },
+        { "clickText": "My first project", "hold": 2000 },
+        { "type": ["textarea", "What does this verse mean?"], "enter": true, "hold": 1000 },
+        { "note": "Waiting for an answer: mark this segment \"flex\" in edit.json so it is sped up to fit." },
+        { "hold": 15000 },
+        { "move": [1300, 600], "hold": 300 },
+        { "scroll": 600, "steps": 120, "hold": 1500 },
+        { "screenshot": "answer" },
+        { "clickText": "Dismiss", "exact": true, "hold": 3000 },
+        { "note": "Off camera from here: undo what the take changed." },
+        { "clickText": "Restore", "hold": 1500 }
+    ]
+}
