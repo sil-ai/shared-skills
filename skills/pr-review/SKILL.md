@@ -142,6 +142,8 @@ done
 
 Use a timeout of 600000ms (10 minutes) on the bash call. If the loop times out after 15 attempts, tell the user Copilot review hasn't arrived yet and offer to continue waiting or skip.
 
+If the review's body says Copilot was "unable to complete this review" (its model policy or plan tier blocks it), the review is done with no findings. Note in the PR body that Copilot couldn't review, skip Step 8, and go on to Step 9.
+
 Once a review is found, fetch inline comments using the review ID:
 ```bash
 gh api repos/{owner}/{repo}/pulls/{pr_number}/reviews/{review_id}/comments --jq '.[] | {path, line, body}'
