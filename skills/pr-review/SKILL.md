@@ -120,7 +120,17 @@ gh api repos/{owner}/{repo}/pulls/{pr_number}/requested_reviewers --method POST 
 
 Note: The Copilot reviewer username is `copilot-pull-request-reviewer[bot]`. Shorter names like `copilot` or `copilot[bot]` silently succeed but do NOT actually tag Copilot.
 
-Then poll for Copilot's review in a single bash loop (so the user only needs to approve one command):
+Check that the request registered before polling. A pending request shows in `requested_reviewers`, where the REST API reports Copilot as login `Copilot` (unlike the `copilot-pull-request-reviewer[bot]` login used by the POST and `/reviews`; keep each where it is). Once Copilot has reviewed, it leaves that list, so also count an existing review:
+
+```bash
+requested=$(gh api repos/{owner}/{repo}/pulls/{pr_number}/requested_reviewers --jq '[.users[].login | ascii_downcase | select(. == "copilot")] | length')
+reviewed=$(gh api repos/{owner}/{repo}/pulls/{pr_number}/reviews --jq '[.[] | select(.user.login == "copilot-pull-request-reviewer[bot]")] | length')
+echo "requested=$requested reviewed=$reviewed"
+```
+
+If both are `0`, the request was silently dropped (the POST still returns OK), e.g. because the requester's monthly Copilot premium-request allowance is used up or Copilot review isn't enabled for the repo. Don't poll. Note in the PR body that Copilot review wasn't available, tell the user, skip Step 8, and go on to Step 9.
+
+Otherwise, poll for Copilot's review in a single bash loop (so the user only needs to approve one command):
 
 ```bash
 for i in $(seq 1 15); do
